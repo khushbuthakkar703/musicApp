@@ -1,0 +1,21 @@
+.main .countdown {
+  margin-top: 50px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.main .countdown-label {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 300;
+}
+.main .countdown-number {
+  font-size: 124px;
+  line-height: 1;
+  font-weight: 200;
+}
+@media (max-width: 991px) {
+  .main .countdown-number {
+	font-size: 30px;
+	font-family: "Source Sans Pro", sans-serif;
+  }

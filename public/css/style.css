@@ -1,0 +1,258 @@
+@charset "utf-8";
+/* CSS Document */
+
+* {
+  box-sizing: border-box;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #262626;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.line {
+  height: 0.05rem;
+  width: 5rem;
+  margin-top: 3rem;
+  background-color: white;
+}
+
+.dj-form input,
+.dj-form select {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  width: 100%;
+  height: 45px;
+  background-color: transparent;
+  border: 2px solid #78e7e6;
+  color: rgb(224, 221, 221);
+}
+
+#genre_select {
+  height: 100px;
+}
+
+.sign-up-btn {
+  background-color: #78e7e6;
+  color: black;
+  font-size: 1.4rem;
+  border: 0;
+  padding: 0.4rem 1.5rem;
+}
+
+.footer {
+  background-color: black;
+  border-top: 1px solid white;
+  padding: 1rem 0.7rem;
+}
+
+.footer-nav {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+}
+
+.footer-nav li {
+  border-right: 1px solid white;
+  padding: 0.1rem 1rem;
+  font-size: 0.8rem;
+}
+
+.footer-icons i {
+  color: white;
+}
+
+.form-check-input {
+  height: 10px;
+}
+
+input[type="checkbox"] {
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(0.5); /* IE */
+  -moz-transform: scale(0.5); /* FF */
+  -webkit-transform: scale(0.5); /* Safari and Chrome */
+  -o-transform: scale(3); /* Opera */
+  transform: scale(0.5);
+  width: 45px;
+  height: 45px;
+}
+
+.login-div {
+  position: relative;
+}
+
+.login-div-text {
+  color: #262626;
+  line-height: 1.6rem;
+  position: absolute;
+  top: 35px;
+  left: 0;
+  right: 0;
+  font-weight: bold;
+}
+
+.login-div-img {
+  width: 100%;
+}
+
+.login-div-btn {
+  position: absolute;
+  color: #262626;
+  font-size: 1.2rem;
+  font-weight: bold;
+  top: 110px;
+  left: 40%;
+  padding: 0.35rem 2rem;
+  background-color: transparent;
+  border: 2.5px solid #262626;
+}
+
+.login-div-btn:hover {
+  background-color: #262626;
+  color: #77e8e6;
+  text-decoration: none;
+}
+
+.modal-dialog {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0rem;
+}
+
+.pp-modal {
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.pp-modal label {
+  font-size: 0.85rem;
+}
+
+a {
+  cursor: pointer;
+}
+
+.small-txt a {
+  border-right: 1px solid #929292;
+  padding: 0rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.main-logo {
+  width: 70%;
+}
+
+@media only screen and (max-width: 1080px) {
+  .login-div-text {
+    color: #262626;
+    font-size: 1.5rem;
+    line-height: 1.4rem;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+  }
+
+  .login-div-btn {
+    position: absolute;
+    color: #262626;
+    font-size: 1.1rem;
+    font-weight: bold;
+    top: 80px;
+    left: 35%;
+    padding: 0.2rem 2rem;
+    background-color: transparent;
+    border: 2px solid #262626;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .login-div-text {
+    color: #262626;
+    font-size: 1rem;
+    line-height: 1.2rem;
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+  }
+
+  .login-div-btn {
+    position: absolute;
+    color: #262626;
+    font-size: 0.8rem;
+    font-weight: bold;
+    top: 60px;
+    left: 35%;
+    padding: 0.15rem 1.5rem;
+    background-color: transparent;
+    border: 2px solid #262626;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .login-div-text {
+    color: #262626;
+    font-size: 0.7rem;
+    line-height: 0.8rem;
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+  }
+
+  .login-div-btn {
+    position: absolute;
+    color: #262626;
+    font-size: 0.55rem;
+    font-weight: bold;
+    top: 40px;
+    left: 40%;
+    padding: 0.04rem 0.6rem;
+    background-color: transparent;
+    border: 1.5px solid #262626;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .login-div-text {
+    color: #262626;
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+    position: absolute;
+    top: 10px;
+    left: 30px;
+    right: 0;
+  }
+
+  .login-div-btn {
+    position: absolute;
+    color: #262626;
+    font-size: 0.8rem;
+    font-weight: bold;
+    top: 42px;
+    left: 40%;
+    padding: 0.07rem 1rem;
+    background-color: transparent;
+    border: 1.5px solid #262626;
+  }
+
+  .login-div-img {
+    width: 130%;
+    height: 110%;
+  }
+
+  .main-logo {
+    width: 100%;
+  }
+}

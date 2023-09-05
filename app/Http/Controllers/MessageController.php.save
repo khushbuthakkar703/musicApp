@@ -1,0 +1,258 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Log;
+use App\Message;
+use App\Dj;
+use App\Helpers\UserHelper;
+use App\User;
+use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use function foo\func;
+
+class MessageController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+
+        $token = JWTAuth::getToken();
+        $user = JWTAuth::toUser($token);
+
+        $sender = $request->sender;
+        $receiver = $request->receiver;
+        $text = $request->message;
+        $message = new Message();
+        $message->receiver_id = $receiver;
+        $message->sender_id = $sender;
+        $message->text = $text;
+        $message->save();
+        event(new \App\Events\GenericEvent("message-received", $receiver, $message));
+        return response()->json(['message' => "sent"], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Message  $message
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Message $message)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Message  $message
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Message $message)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Message  $message
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Message $message)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Message  $message
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Message $message)
+    {
+        //
+    }
+
+    public function getConversation(Request $request)
+    {
+
+        $sender = $request->user_1;
+        $receiver = $request->user_2;
+
+        $token = JWTAuth::getToken();
+        $user = JWTAuth::toUser($token);
+
+
+        if ($user->id != $sender) {
+            //return "";
+        }
+
+        $messages = Message::whereIn('sender_id', [$sender, $receiver])
+            ->whereIn('receiver_id', [$sender, $receiver])
+            ->where(function ($query) use ($user) {
+                $query->where('delete_for', '!=', $user->id)
+                    ->orWhereNull('delete_for');
+            })->orderBy('id', 'desc')
+            ->get();
+
+        $messages->transform(function ($item) {
+            $new_item = new \stdClass;
+            $new_item_user = new \stdClass;
+
+            $dj = Dj::where('user_id', $item->sender->id)->first();
+
+            $new_item_user->_id = $item->sender->id;
+            $new_item_user->name = is_null($dj) ? $item->sender->username : $dj->dj_name;
+            $new_item_user->avatar = url($item->sender->profile_picture);
+
+
+            $new_item->_id = $item->id;
+            $new_item->text = $item->text;
+            $new_item->createdAt = $item->created_at->toDateTimeString();
+            $new_item->user = $new_item_user;
+
+            return $new_item;
+        });
+
+        return $messages->paginate(20);
+    }
+
+    public function getAllConversation(Request $request)
+    {
+
+        $currentUser = $request->user;
+
+        $token = JWTAuth::getToken();
+        $user = JWTAuth::toUser($token);
+
+        if ($user->id != $currentUser) {
+            //==return "";
+        }
+
+        $a = collect(\DB::select('SELECT distinct(uid) FROM (SELECT receiver_id as uid FROM `messages` WHERE messages.sender_id = ?  AND messages.delete_for != ?  UNION SELECT sender_id as uid FROM `messages` WHERE messages.receiver_id = ?  AND messages.delete_for != ?) m group by uid', [$currentUser, $currentUser, $currentUser, $currentUser]))->paginate(20);
+
+        // return $a;
+
+        $a->transform(function ($item) use ($currentUser) {
+            $new_item = new \stdClass;
+            $new_item_user = new \stdClass;
+            //$item = Message::find($item->id);
+
+            $primaryUser = $item->sender->id == $currentUser ?  $item->sender : $item->receiver;
+            $secondaryUser = $item->sender->id == $currentUser ?  $item->receiver : $item->sender;
+
+
+            $dj = Dj::where('user_id', $secondaryUser->id)->first();
+
+            $new_item_user->_id = $secondaryUser->id;
+            $new_item_user->name = is_null($dj) ? $secondaryUser->username : $dj->dj_name;
+            $new_item_user->avatar = url($secondaryUser->profile_picture);
+
+
+            $new_item->_id = $primaryUser->id;
+            $new_item->text = $item->text;
+            $new_item->createdAt = $item->created_at->toDateTimeString();
+            $new_item->user = $new_item_user;
+            $new_item->unseen_message_cnt = Message::where('sender_id', $secondaryUser->id)
+                ->where('receiver_id', $primaryUser->id)
+                ->where('seen_by_receiver', 0)
+                ->count();
+            // $new_item->unseen_message = Message::where('sender_id', $secondaryUser->id)
+            //                         ->where('receiver_id', $primaryUser->id)
+            //                         ->where('seen_by_receiver', 0)
+            //                         ->toSql();
+            // $new_item->values = $secondaryUser->id . ":" . $primaryUser->id;
+            return $new_item;
+        });
+        return $a;
+    }
+
+    public function deleteMesssage(Message $message)
+    {
+	Log::debug("testing del: ".$message->id);
+        $user = UserHelper::get_current_user();
+
+        if ($message->receiver->id == $user->id || $message->sender->id == $user->id) {
+
+            if ($message->delete_for == null) {
+                $message->delete_for = $user->id;
+                $message->save();
+                return response()->json("success", 200);
+            } else if ($message->delete_for != $user->id) {
+                $message->delete();
+                return response()->json("success", 200);
+            }
+        }
+	Log::debug($message->receiver->id . "," . $user->id .",". $message->sender->id);
+        return response()->json("failed", 404);
+    }
+
+    public function deleteAllMesssage(User $partner)
+    {
+        $user = UserHelper::get_current_user();
+
+        $messages = Message::where('sender_id', $user->id)
+            ->orWhere('receiver_id', $user->id)->get();
+
+
+        foreach ($messages as $message) {
+
+            if ($message->receiver->id == $user->id || $message->sender->id == $user->id) {
+
+                if ($message->delete_for == null) {
+                    $message->delete_for = $user->id;
+                    $message->save();
+                } else if ($message->delete_for != $user->id) {
+                    $message->delete();
+                }
+            }
+        }
+        return response()->json("success", 200);
+    }
+
+
+    public function markasseen(User $sender)
+    {
+        $receiver = UserHelper::get_current_user();
+
+
+        $messageTable = (new Message())->getTable();
+        \DB::table($messageTable)
+            ->where('sender_id', $sender->id)
+            ->where('receiver_id', $receiver->id)
+            ->update(array('seen_by_receiver' => 1));
+
+        return response()->json(["status" => "success"], 200);
+    }
+}
